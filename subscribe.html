@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Subscribe</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <h1>Subscribe to IdyllAc</h1>
+  
+  <h4 style="color:lime; text-align:center; margin-bottom: 0;">:Valide email لطرح الأسئلة ومزيد من الإستفسار سجل عنوان بريدك الإلكتروني وقم بالتسائل والإرسال</h4>
+  <br>
+  <form action="/submit" method="POST">
+     <!-- <label for="email" style="color: lime;" >Email:</label><br> -->
+      <input type="email" name="email" placeholder="Inter your email" required><br>
+     <!-- <label for="message" style="color: lime;" >Your Message:</label> -->
+     <h4 style="color:lime; text-align: right; margin-bottom: 0;">:إدرج السؤال في الخانة المخصصة لذلك # </h4>
+     
+     <textarea name="message" placeholder="Write your message shortly here" id="textarea" cols="30" rows="10" required></textarea><br>
+     <h4 style="color:lime; text-align: right; margin-bottom: 0;">:ثم قم بالإرسال بالنقر على الزر إرسال#</h4>
+
+     <button type="submit">إرسال</button> 
+    </form>
+
+
+  <p id="status"></p>
+
+  <script>
+    // Optional: handle response without page reload
+    const form = document.querySelector("form");
+    const status = document.getElementById("status");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const formData = new FormData(form);
+      const res = await fetch("/subscribe", {
+        method: "POST",
+        body: formData
+      });
+      const text = await res.text();
+      status.textContent = text;
+    });
+  </script>
+</body>
+</html>
