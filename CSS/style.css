@@ -27,7 +27,7 @@ html {
 	scroll-behavior:smooth;
 	font-family: 'Nunito', sans-serf;
 }
-______________________________________
+
 
 .main {
 	background-color: rgb(86, 133, 86);
@@ -163,9 +163,9 @@ ______________________________________
 }
 
 h2 {
-	color: whitesmoke;
+	text-align: right;
+	color: bisque;
 }
-
 
 
 h3 {
@@ -185,6 +185,7 @@ h4 {
   text-decoration: none;
   border-bottom: 1px dotted;
  } 
+
 
  a:hover {
  color: orange;
@@ -227,7 +228,7 @@ h4 {
     justify-items: center;
 	font-size: 2vh;
 	font-weight: lighter;
-	text-align-last: left;			
+	text-align-last: right;			
 }  
 
  
@@ -294,7 +295,6 @@ h4 {
 					 border-radius: 5px; 
 					 font-family:cursive;
 					 color: white;
-					
 				}
 
 
@@ -318,6 +318,7 @@ h4 {
 						background-color: #37c0fb;
 					} 
 
+
 				  .header__nav > ul > li.current a {
 						color: #fff;
 					} 
@@ -327,6 +328,7 @@ h4 {
 					    color: lime;
 				    } 
 
+					
 			        .header__nav > ul > li.active.current:before {
 					opacity: 0;
 				    }  
@@ -643,9 +645,7 @@ h4 {
 			      	border-bottom-color: transparent;
 		      	} 
 
-					 
-__________________________________________________________
-____________________________________________________________
+
 
 
 
@@ -933,6 +933,7 @@ ____________________________________________________________
 		.wrapper.style {
 			background-color:darkcyan;
 			color: blanchedalmond;
+			
 		} 
 
 
