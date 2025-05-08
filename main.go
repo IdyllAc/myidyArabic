@@ -14,8 +14,8 @@ import (
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/gothic"
 	"github.com/markbates/goth/providers/facebook"
-	"github.com/markbates/goth/providers/google"
 	"github.com/markbates/goth/providers/github"
+	"github.com/markbates/goth/providers/google"
 
 	_ "github.com/mattn/go-sqlite3" // Use this or modernc.org/sqlite
 )
@@ -26,7 +26,7 @@ func main() {
 	godotenv.Load()
 
 	// Load SESSION_SECRET from env file
-	key := os.Getenv("SESSION_SECRET")
+	key := os.Getenv("c7602c7d046bf86055a5f545d21d34979f337d7382d919b65b9f5a332c7cb533532b5cf8af7e14b33e8f352e36344577781fc80b553cd22e3478cbb917696c61") // SESSION_SECRET
 	if key == "" {
 		log.Fatal("❌ SESSION_SECRET is missing in .env")
 	}
@@ -40,8 +40,8 @@ func main() {
 	// Initialize OAuth providers
 	goth.UseProviders(
 		facebook.New(
-			os.Getenv("1414625536386549"), //FACEBOOK_KEY
-			os.Getenv("34b3780d34e63750b0a2af27f52490e1"), //FACEBOOK_SECRET
+			os.Getenv("679702924653299"),                  //FACEBOOK_KEY
+			os.Getenv("3a9c276438e3e23a511430d143bb263d"), //FACEBOOK_SECRET
 			"http://localhost:8080/auth/facebook/callback",
 		),
 		google.New(
@@ -59,7 +59,7 @@ func main() {
 
 	// Connect to SQLite DB
 	var err error
-	db, err = sql.Open("sqlite3", "./DB_subscribers.db")
+	db, err = sql.Open("sqlite3", "./DB_subscribers")
 	if err != nil {
 		log.Fatal("❌ DB connection failed:", err)
 	}
@@ -169,7 +169,7 @@ func handleEmailSubscription(w http.ResponseWriter, r *http.Request) {
 }
 
 func sendConfirmationEmail(to, link string) {
-	from := os.Getenv("idyllacg@gmail.com")  //SMTP_EMAIL
+	from := os.Getenv("idyllacg@gmail.com")      //SMTP_EMAIL
 	password := os.Getenv("bubi dmbp yepa wigw") //SMTP_PASS
 
 	subject := "Please verify your email"
