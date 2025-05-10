@@ -17,36 +17,38 @@ import (
 	"github.com/markbates/goth/providers/github"
 	"github.com/markbates/goth/providers/google"
 
-	_ "github.com/mattn/go-sqlite3" // Use this or modernc.org/sqlite
+	_ "modernc.org/sqlite"
 )
 
 var db *sql.DB
 
 func main() {
-	godotenv.Load()
+	err := godotenv.Load()
+	if err != nil {
+		log.Println("⚠️ .env not loaded, using system env")
+	}
 
-	// Load SESSION_SECRET from env file
-	key := os.Getenv("c7602c7d046bf86055a5f545d21d34979f337d7382d919b65b9f5a332c7cb533532b5cf8af7e14b33e8f352e36344577781fc80b553cd22e3478cbb917696c61") // SESSION_SECRET
+	key := os.Getenv("SESSION_SECRET")
 	if key == "" {
 		log.Fatal("❌ SESSION_SECRET is missing in .env")
 	}
+	log.Println("✅ SESSION_SECRET loaded successfully!")
 
 	store := sessions.NewCookieStore([]byte(key))
-	store.MaxAge(86400 * 30) // 30 days
+	store.MaxAge(86400 * 30)
 	store.Options.HttpOnly = true
 	store.Options.Secure = false
 	gothic.Store = store
 
-	// Initialize OAuth providers
 	goth.UseProviders(
 		facebook.New(
-			os.Getenv("679702924653299"),                  //FACEBOOK_KEY
-			os.Getenv("3a9c276438e3e23a511430d143bb263d"), //FACEBOOK_SECRET
+			os.Getenv("679702924653299"),
+			os.Getenv("3a9c276438e3e23a511430d143bb263d"),
 			"http://localhost:8080/auth/facebook/callback",
 		),
 		google.New(
-			os.Getenv("94664221445-11jp0skjudtgn8top4l7p46givo8u0vp.apps.googleusercontent.com"),
-			os.Getenv("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"),
+			os.Getenv("94664221445-366tf0i5en6p3n9ho0185q3gq8s54q03.apps.googleusercontent.com"),
+			os.Getenv("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"),
 			"http://localhost:8080/auth/google/callback",
 			"email", "profile",
 		),
@@ -57,50 +59,54 @@ func main() {
 		),
 	)
 
-	// Connect to SQLite DB
-	var err error
-	db, err = sql.Open("sqlite3", "./DB_subscribers")
+	db, err = sql.Open("sqlite", "./subscribers/DB_subscribers.db")
 	if err != nil {
 		log.Fatal("❌ DB connection failed:", err)
 	}
 	defer db.Close()
-
 	createTables()
 
-	// Routes
-	http.Handle("/", http.FileServer(http.Dir("./static")))
+	// http.Handle("/", http.FileServer(http.Dir("./static")))
+	http.HandleFunc("/", serveIndex)
 	http.HandleFunc("/subscribe", serveSubscribe)
 	http.HandleFunc("/subscribe/email", handleEmailSubscription)
 	http.HandleFunc("/subscribers", handleListSubscribers)
 	http.HandleFunc("/view-emails", handleViewEmails)
 	http.HandleFunc("/submit", handleFormSubmission)
 
-	// OAuth Routes
+	// http.HandleFunc("/auth/facebook", handleFacebookLogin("facebook"))
+	// http.HandleFunc("/auth/facebook/callback", handleFacebookCallback("facebook"))
+	// http.HandleFunc("/auth/google", handleGoogleLogin("google"))
+	// http.HandleFunc("/auth/google/callback", handleGoogleCallback("google"))
+	// http.HandleFunc("/auth/github", handleGitHubLogin("github"))
+	// http.HandleFunc("/auth/github/callback", handleGitHubCallback("github"))
+
 	http.HandleFunc("/auth/facebook", handleFacebookLogin)
 	http.HandleFunc("/auth/facebook/callback", handleFacebookCallback)
+
 	http.HandleFunc("/auth/google", handleGoogleLogin)
 	http.HandleFunc("/auth/google/callback", handleGoogleCallback)
+
 	http.HandleFunc("/auth/github", handleGitHubLogin)
 	http.HandleFunc("/auth/github/callback", handleGitHubCallback)
 
-	fmt.Println("✅ Server running on http://localhost:8080")
+	log.Println("🌐 Server started at http://localhost:8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
 
 func createTables() {
-	subscriberTable := `
-	CREATE TABLE IF NOT EXISTS subscribers (
+	subscriberTable := `CREATE TABLE IF NOT EXISTS subscribers (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
 		email TEXT UNIQUE NOT NULL
 	);`
-	messageTable := `
-	CREATE TABLE IF NOT EXISTS messages (
+	messageTable := `CREATE TABLE IF NOT EXISTS messages (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
 		subscriber_id INTEGER,
 		message TEXT,
 		created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 		FOREIGN KEY(subscriber_id) REFERENCES subscribers(id)
 	);`
+
 	_, err := db.Exec(subscriberTable)
 	if err != nil {
 		log.Fatal("❌ Failed to create subscribers table:", err)
@@ -110,6 +116,16 @@ func createTables() {
 		log.Fatal("❌ Failed to create messages table:", err)
 	}
 }
+
+
+func serveIndex(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+		return
+	}
+	http.ServeFile(w, r, "index.html")
+}
+
 
 func serveSubscribe(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
@@ -168,9 +184,9 @@ func handleEmailSubscription(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "✅ Thanks %s! Confirmation sent.", email)
 }
 
-func sendConfirmationEmail(to, link string) {
-	from := os.Getenv("idyllacg@gmail.com")      //SMTP_EMAIL
-	password := os.Getenv("bubi dmbp yepa wigw") //SMTP_PASS
+func sendConfirmationEmail(to string, link string) {
+	from := os.Getenv("victor.via7@gmail.com")
+	password := os.Getenv("juvi wwyx rdkh qdjc")
 
 	subject := "Please verify your email"
 	body := fmt.Sprintf("Click the link to confirm:\n%s", link)
@@ -225,41 +241,102 @@ func handleFormSubmission(w http.ResponseWriter, r *http.Request) {
 }
 
 // OAuth handlers
+
 func handleFacebookLogin(w http.ResponseWriter, r *http.Request) {
 	r.URL.RawQuery = "provider=facebook"
 	gothic.BeginAuthHandler(w, r)
 }
+
 func handleFacebookCallback(w http.ResponseWriter, r *http.Request) {
 	user, err := gothic.CompleteUserAuth(w, r)
 	if err != nil {
-		http.Error(w, "Facebook login failed", http.StatusInternalServerError)
+		http.Error(w, "Facebook Login failed: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
-	fmt.Fprintf(w, "✅ Logged in via Facebook\nName: %s\nEmail: %s", user.Name, user.Email)
+	fmt.Fprintf(w, "✅ Facebook Login Successful!\nName: %s\nEmail: %s\n", user.Name, user.Email)
 }
 
 func handleGoogleLogin(w http.ResponseWriter, r *http.Request) {
 	r.URL.RawQuery = "provider=google"
 	gothic.BeginAuthHandler(w, r)
 }
+
 func handleGoogleCallback(w http.ResponseWriter, r *http.Request) {
 	user, err := gothic.CompleteUserAuth(w, r)
 	if err != nil {
-		http.Error(w, "Google login failed", http.StatusInternalServerError)
+		http.Error(w, "Google Login failed: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
-	fmt.Fprintf(w, "✅ Logged in via Google\nName: %s\nEmail: %s", user.Name, user.Email)
+	fmt.Fprintf(w, "✅ Google Login Successful!\n\nName: %s\nEmail: %s\n", user.Name, user.Email)
 }
 
 func handleGitHubLogin(w http.ResponseWriter, r *http.Request) {
 	r.URL.RawQuery = "provider=github"
 	gothic.BeginAuthHandler(w, r)
 }
+
 func handleGitHubCallback(w http.ResponseWriter, r *http.Request) {
 	user, err := gothic.CompleteUserAuth(w, r)
 	if err != nil {
-		http.Error(w, "GitHub login failed", http.StatusInternalServerError)
+		http.Error(w, "GitHub Login failed: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
-	fmt.Fprintf(w, "✅ Logged in via GitHub\nName: %s\nEmail: %s", user.Name, user.Email)
+	fmt.Fprintf(w, "✅ GitHub Login Successful!\nName: %s\nEmail: %s\n", user.Name, user.Email)
 }
+
+// func handleFacebookLogin(provider string) http.HandlerFunc {
+// 	return func(w http.ResponseWriter, r *http.Request) {
+// 		r = r.WithContext(context.WithValue(r.Context(), gothic.ProviderParamKey, provider))
+// 		gothic.BeginAuthHandler(w, r)
+// 	}
+// }
+
+// func handleFacebookCallback(provider string) http.HandlerFunc {
+// 	return func(w http.ResponseWriter, r *http.Request) {
+// 		r = r.WithContext(context.WithValue(r.Context(), gothic.ProviderParamKey, provider))
+// 		user, err := gothic.CompleteUserAuth(w, r)
+// 		if err != nil {
+// 			http.Error(w, provider+" login failed: "+err.Error(), http.StatusInternalServerError)
+// 			return
+// 		}
+// 		fmt.Fprintf(w, "✅ Logged in via %s\nName: %s\nEmail: %s", provider, user.Name, user.Email)
+// 	}
+// }
+
+// func handleGoogleLogin(provider string) http.HandlerFunc {
+// 	return func(w http.ResponseWriter, r *http.Request) {
+// 		r = r.WithContext(context.WithValue(r.Context(), gothic.ProviderParamKey, provider))
+// 		gothic.BeginAuthHandler(w, r)
+// 	}
+// }
+
+// func handleGoogleCallback(provider string) http.HandlerFunc {
+// 	return func(w http.ResponseWriter, r *http.Request) {
+// 		r = r.WithContext(context.WithValue(r.Context(), gothic.ProviderParamKey, provider))
+// 		user, err := gothic.CompleteUserAuth(w, r)
+// 		if err != nil {
+// 			http.Error(w, provider+" login failed: "+err.Error(), http.StatusInternalServerError)
+// 			return
+// 		}
+// 		fmt.Fprintf(w, "✅ Logged in via %s\nName: %s\nEmail: %s", provider, user.Name, user.Email)
+// 	}
+// }
+
+// func handleGitHubLogin(provider string) http.HandlerFunc {
+// 	return func(w http.ResponseWriter, r *http.Request) {
+// 		r = r.WithContext(context.WithValue(r.Context(), gothic.ProviderParamKey, provider))
+// 		gothic.BeginAuthHandler(w, r)
+// 	}
+// }
+
+// func handleGitGubCallback(provider string) http.HandlerFunc {
+// 	return func(w http.ResponseWriter, r *http.Request) {
+// 		r = r.WithContext(context.WithValue(r.Context(), gothic.ProviderParamKey, provider))
+// 		user, err := gothic.CompleteUserAuth(w, r)
+// 		if err != nil {
+// 			http.Error(w, provider+" login failed: "+err.Error(), http.StatusInternalServerError)
+// 			return
+// 		}
+// 		fmt.Fprintf(w, "✅ Logged in via %s\nName: %s\nEmail: %s", provider, user.Name, user.Email)
+// 	}
+// }
