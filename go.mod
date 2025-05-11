@@ -27,6 +27,7 @@ require (
 	github.com/gorilla/context v1.1.1 // indirect
 	github.com/gorilla/mux v1.6.2 // indirect
 	github.com/gorilla/securecookie v1.1.2 // indirect
+	golang.org/x/net v0.40.0
 	golang.org/x/oauth2 v0.29.0 // indirect
 	modernc.org/sqlite v1.37.0
 )
