@@ -118,7 +118,7 @@ func serveIndex(w http.ResponseWriter, r *http.Request) {
 }
 
 func serveSubscribe(w http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodGet {
+	if r.Method == http.MethodPost {
 		http.ServeFile(w, r, "./static/subscribe.html")
 	} else {
 		http.Error(w, "Invalid method", http.StatusMethodNotAllowed)
@@ -248,5 +248,10 @@ func handleOAuthCallback(provider string) http.HandlerFunc {
 			return
 		}
 		fmt.Fprintf(w, "✅ Logged in via %s\nName: %s\nEmail: %s", provider, user.Name, user.Email)
+
+		log.Println("🌐 Server started at http://localhost:8080")
+	log.Fatal(http.ListenAndServe(":8080", nil))
 	}
+
 }
+
