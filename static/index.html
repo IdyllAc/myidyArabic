@@ -7,7 +7,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Idyllic">
     <title>My idyllac Project With Google</title>
-    <link rel="stylesheet" href="/static/style.css">
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="CSS/style.css">
     <link rel="stylesheet" href="sass/main.scss">
@@ -112,9 +111,9 @@
             <nav class="nav">
                 <ul class="ul">
                     <li><a href="#">المنتجات</a></li>
-                    <li><a href="https://idyllac.github.io/formdatabase_resources/">الإستمارة</a></li>
+                    <li><a href="formdatabase_resources">الإستمارة</a></li>
                     <li><a href="#">التطبيق</a></li>
-                    <li><a href="static/subscribe.html">Follow/متابعة</a></li>
+                    <li><a href="subscribe.html">Follow</a></li>
                 </ul>
             </nav>
         </main>
@@ -218,14 +217,14 @@
         <br>
     <h2>:متابعة</h2>
     <h3 class="button" style="background-color: darkmagenta; display: block;  width: auto; margin: auto; color:#fff; font-weight: 200; text-align: center; 
-    font-family: Arial, Helvetica, sans-serif; border-radius: 5px; cursor: pointer; line-height: 2.75rem ">وللمتابعة حيثُ يصلك كل جديد اضغط: <a href="subscribe.html">متابعة</a></h3>
+    font-family: Arial, Helvetica, sans-serif; border-radius: 5px; cursor: pointer; line-height: 2.75rem ">وللمتابعة حيثُ يصلك كل جديد اضغط: <a href="./static/subscribe.html">متابعة</a></h3>
    
         <hr>
         <br>
         <h2 style="background-color: green; text-align: center;">Subscribe to IdyllAc</h2>
         <br>
         <h2>:للإكتتاب</h2>
-      <a href="http://idyllac.github.io/formdatabase_resources/" class="button" style="background-color:black; display: block; text-align: center; width:auto;
+      <a href="http://formdatabase_resources" class="button" style="background-color:black; display: block; text-align: center; width:auto;
        margin: auto; color:bisque; border-radius: 5px; border: 0 ; 
 cursor: pointer; line-height: 2.75rem ">: انقر هنا
         </a>
@@ -264,7 +263,7 @@ cursor: pointer; line-height: 2.75rem ">: انقر هنا
     <br>
  <h2>:سؤال وإجابات</h2>
       <h4 style="background-color: green; display: block;  width: auto; margin: auto; color: #fff; text-align:center;
-       font-family: Arial, Helvetica, sans-serif; border-radius: 5px; cursor: pointer; line-height: 2.75rem "> لمزيد من الإستفسار وطرح الأسئلة, سجل مايجول بدهنك من اسئلة هنا على الرابط التالي يوجد اسفل الصفحة: <a href="static/subscribe.html" target="_blank" rel="noopener noreferrer">أسئلة وإجابات</a></h4>
+       font-family: Arial, Helvetica, sans-serif; border-radius: 5px; cursor: pointer; line-height: 2.75rem "> لمزيد من الإستفسار وطرح الأسئلة, سجل مايجول بدهنك من اسئلة هنا على الرابط التالي يوجد اسفل الصفحة: <a href="./static/subscribe.html">أسئلة وإجابات</a></h4>
   
       <br>
       
@@ -293,10 +292,17 @@ cursor: pointer; line-height: 2.75rem ">: انقر هنا
         <footer class="footer">
             <span class="nowrap">Copyrights &copy; <time id="year"></time></span>
             <span class="nowrap">All rights reserved<a
-                    href="https://idypay.fr">IdyllAc</a></span>
+                    href="https://anypay.cards">IdyllAc</a></span>
 
         </footer>
-        
+        <scripts>
+
+            <script src="https://kit.fontawesome.com/cbdd759dc1.js" crossorigin="anonymous">
+            document.getElementById("year").innerHTML = new Date().getFullYear(); 
+          </script>
+          <script src="./static/subscribe.html"></script>
+
+
 
 
 <!-- <script>
